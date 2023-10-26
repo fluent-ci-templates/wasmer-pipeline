@@ -1,0 +1,4 @@
+kind: wasmer.io/App.v0
+name: tsirysndr-hello
+description: Sample Axum server for Wasmer Edge
+package: demo-ns/wasmer-hello
