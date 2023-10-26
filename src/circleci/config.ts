@@ -6,7 +6,7 @@ export function generateYaml(): FluentCircleCI.CircleCI {
   const deploy = new FluentCircleCI.Job()
     .machine({ image: "ubuntu-2004:2023.07.1" })
     .variables({
-      WASMER_TOKEN: "${{WASMER.WASMER_TOKEN}}",
+      WASMER_TOKEN: "${{wasmer.WASMER_TOKEN}}",
     })
     .steps([
       "checkout",
