@@ -1,5 +1,45 @@
-# Wasmer Pipeline
+# wasmer Pipeline
 
-![deno compatibility](https://shield.deno.dev/deno/^1.34)
+[![fluentci pipeline](https://img.shields.io/badge/dynamic/json?label=pkg.fluentci.io&labelColor=%23000&color=%23460cf1&url=https%3A%2F%2Fapi.fluentci.io%2Fv1%2Fpipeline%2Fwasmer_pipeline&query=%24.version)](https://pkg.fluentci.io/wasmer_pipeline)
+[![deno module](https://shield.deno.dev/x/wasmer_pipeline)](https://deno.land/x/wasmer_pipeline)
+![deno compatibility](https://shield.deno.dev/deno/^1.37)
+[![](https://img.shields.io/codecov/c/gh/fluent-ci-templates/wasmer-pipeline)](https://codecov.io/gh/fluent-ci-templates/wasmer-pipeline)
 
-This repository contains a minimal pipeline for a [Fluent CI](https://fluentci.io) project. It is intended to be used as a template for new projects.
+A ready-to-use CI/CD Pipeline for deploying your applications to [Wasmer Edge](https://wasmer.io/products/edge).
+
+## 🚀 Usage
+
+Run the following command:
+
+```bash
+fluentci run wasmer_pipeline
+```
+
+## Environment Variables
+
+| Variable        | Description                      |
+|-----------------|----------------------------------|
+| WASMER_TOKEN    | Your wasmer access token         |
+
+## Jobs
+
+| Job     | Description                          |
+|---------|--------------------------------------|
+| build   | Build your application.              |
+| deploy  | Deploy your application to wasm edge |
+
+```graphql
+  build(src: String!): String
+  deploy(cache: Boolean!, src: String!): String
+```
+
+## Programmatic usage
+
+You can also use this pipeline programmatically:
+
+```typescript
+import { deploy } from "https://pkg.fluentci.io/wasmer_pipeline@v0.1.0/mod.ts";
+
+await build(".")
+await deploy(".", Deno.env.get("WASMER_TOKEN"), true);
+```
