@@ -5,7 +5,7 @@ export function generateYaml(): FluentAWSCodePipeline.BuildSpec {
   buildspec
     .env({
       "secrets-manager": {
-        SHUTTLE_API_KEY: "wasmer:WASMER_TOKEN",
+        WASMER_TOKEN: "wasmer:WASMER_TOKEN",
       },
     })
     .phase("install", {
