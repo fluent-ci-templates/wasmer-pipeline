@@ -1,7 +1,7 @@
 import { JobSpec, Workflow } from "fluent_github_actions";
 
-export function generateYaml(): Workflow {
-  const workflow = new Workflow("Tests");
+export function generateYaml() {
+  const workflow = new Workflow("Codecov");
 
   const push = {
     branches: ["main"],
@@ -36,9 +36,17 @@ export function generateYaml(): Workflow {
         name: "Run Dagger Pipelines",
         run: "fluentci run deno_pipeline fmt lint test",
       },
+      {
+        name: "Upload to Codecov",
+        run: "fluentci run codecov_pipeline",
+        env: {
+          CODECOV_TOKEN: "${{ secrets.CODECOV_TOKEN }}",
+        },
+      },
     ],
   };
 
   workflow.on({ push }).jobs({ tests });
-  return workflow;
+
+  workflow.save(".github/workflows/ci.yml");
 }
