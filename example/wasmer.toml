@@ -1,16 +1,16 @@
 [package]
-
+name = "demo-ns/wasmer-hello"
+version = "0.1.4"
 description = "Sample Axum server for Wasmer Edge"
 license = "MIT"
-name = "demo-ns/wasmer-hello"
-version = "0.1.0"
 wasmer-extra-flags = "--net --enable-threads --enable-bulk-memory"
-[[module]]
 
-abi = "wasi"
+[[module]]
 name = "wasmer-hello"
 source = "./target/wasm32-wasmer-wasi/release/wasmer-hello.wasm"
+abi = "wasi"
+
 [[command]]
-module = "wasmer-hello"
 name = "proxy"
+module = "wasmer-hello"
 runner = "https://webc.org/runner/wasi"
