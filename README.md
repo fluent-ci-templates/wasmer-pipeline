@@ -37,7 +37,7 @@ fluentci run wasmer_pipeline
 You can also use this pipeline programmatically:
 
 ```typescript
-import { deploy } from "https://pkg.fluentci.io/wasmer_pipeline@v0.1.0/mod.ts";
+import { build, deploy } from "https://pkg.fluentci.io/wasmer_pipeline@v0.1.0/mod.ts";
 
 await build(".")
 await deploy(".", Deno.env.get("WASMER_TOKEN"), true);
