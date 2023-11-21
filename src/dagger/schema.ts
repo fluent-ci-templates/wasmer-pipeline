@@ -31,10 +31,17 @@ const Query = queryType({
   },
 });
 
-export const schema = makeSchema({
+const schema = makeSchema({
   types: [Query],
   outputs: {
     schema: resolve(join(dirname(".."), dirname(".."), "schema.graphql")),
     typegen: resolve(join(dirname(".."), dirname(".."), "gen", "nexus.ts")),
   },
 });
+
+schema.description = JSON.stringify({
+  "build.src": "directory",
+  "deploy.src": "directory",
+});
+
+export { schema };

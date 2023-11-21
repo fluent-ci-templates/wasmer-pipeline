@@ -63,6 +63,7 @@ export interface NexusGenArgTypes {
     deploy: { // args
       cache: boolean; // Boolean!
       src: string; // String!
+      token: string; // String!
     }
   }
 }

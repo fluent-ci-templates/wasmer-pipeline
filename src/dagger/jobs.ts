@@ -1,4 +1,6 @@
-import Client, { connect } from "../../deps.ts";
+import { connect } from "../../sdk/connect.ts";
+import { getDirectory } from "./lib.ts";
+import { Client, Directory } from "../../deps.ts";
 
 export enum Job {
   build = "build",
@@ -7,9 +9,9 @@ export enum Job {
 
 export const exclude = ["target", ".git", ".fluentci"];
 
-export const build = async (src = ".") => {
+export const build = async (src: string | Directory | undefined = ".") => {
   await connect(async (client: Client) => {
-    const context = client.host().directory(src);
+    const context = getDirectory(client, src);
     const ctr = client
       .pipeline(Job.build)
       .container()
@@ -102,9 +104,13 @@ export const build = async (src = ".") => {
   return "Done";
 };
 
-export const deploy = async (src = ".", token?: string, cache = false) => {
+export const deploy = async (
+  src: string | Directory | undefined = ".",
+  token?: string,
+  cache = false
+) => {
   await connect(async (client: Client) => {
-    const context = client.host().directory(src);
+    const context = getDirectory(client, src);
 
     if (!Deno.env.get("WASMER_TOKEN") && !token) {
       console.log("WASMER_TOKEN is not set");
