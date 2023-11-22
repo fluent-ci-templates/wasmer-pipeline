@@ -1,6 +1,6 @@
 import { connect } from "../../sdk/connect.ts";
-import { getDirectory } from "./lib.ts";
-import { Client, Directory } from "../../deps.ts";
+import { getDirectory, getWasmerToken } from "./lib.ts";
+import { Client, Directory, Secret } from "../../deps.ts";
 
 export enum Job {
   build = "build",
@@ -106,14 +106,17 @@ export const build = async (src: string | Directory | undefined = ".") => {
 
 export const deploy = async (
   src: string | Directory | undefined = ".",
-  token?: string,
+  token?: string | Secret,
   cache = false
 ) => {
   await connect(async (client: Client) => {
     const context = getDirectory(client, src);
+    const secret = getWasmerToken(client, token);
 
-    if (!Deno.env.get("WASMER_TOKEN") && !token) {
-      console.log("WASMER_TOKEN is not set");
+    if (!secret) {
+      console.log(
+        "Missing Wasmer token. Please provide a secret or set the WASMER_TOKEN environment variable."
+      );
       Deno.exit(1);
     }
 
@@ -124,7 +127,7 @@ export const deploy = async (
       .withExec(["apt", "update"])
       .withExec(["apt", "install", "-y", "curl"])
       .withExec(["sh", "-c", "curl https://get.wasmer.io -sSfL | sh"])
-      .withEnvVariable("WASMER_TOKEN", Deno.env.get("WASMER_TOKEN") || token!)
+      .withSecretVariable("WASMER_TOKEN", secret)
       .withEnvVariable("WASMER_DIR", "/root/.wasmer")
       .withEnvVariable("WASMER_CACHE_DIR", "/root/.wasmer/cache")
       .withEnvVariable("PATH", "/root/.wasmer/bin:$PATH", { expand: true });
