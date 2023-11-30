@@ -9,7 +9,16 @@ export enum Job {
 
 export const exclude = ["target", ".git", ".fluentci"];
 
-export const build = async (src: string | Directory | undefined = ".") => {
+/**
+ * @function
+ * @description Build the project (wasix)
+ * @param src {string | Directory | undefined}
+ * @returns {string}
+ */
+export async function build(
+  src: string | Directory | undefined = "."
+): Promise<Directory | string> {
+  let id = "";
   await connect(async (client: Client) => {
     const context = getDirectory(client, src);
     const ctr = client
@@ -95,20 +104,34 @@ export const build = async (src: string | Directory | undefined = ".") => {
       })
       .withWorkdir("/app")
       .withExec(["cargo", "wasix", "build", "--release"])
+      .withExec([
+        "cp",
+        "-r",
+        "/app/target/wasm32-wasmer-wasi/release/",
+        "/tmp/release/",
+      ])
       .withExec(["ls", "-la", "/app/target/wasm32-wasmer-wasi/release/"]);
 
-    const result = await ctr.stdout();
+    await ctr.stdout();
 
-    console.log(result);
+    id = await ctr.directory("/tmp/release").id();
   });
-  return "Done";
-};
+  return id;
+}
 
-export const deploy = async (
+/**
+ * @function
+ * @description Deploy to Wasmer Edge
+ * @param src {string | Directory | undefined}
+ * @param token {string | Secret}
+ * @param cache {boolean}
+ * @returns {string}
+ */
+export async function deploy(
   src: string | Directory | undefined = ".",
   token?: string | Secret,
   cache = false
-) => {
+): Promise<string> {
   await connect(async (client: Client) => {
     const context = getDirectory(client, src);
     const secret = getWasmerToken(client, token);
@@ -149,11 +172,13 @@ export const deploy = async (
     console.log(result);
   });
   return "Done";
-};
+}
 
 export type JobExec = (
   src?: string
-) => Promise<string> | ((src?: string, cache?: boolean) => Promise<string>);
+) =>
+  | Promise<Directory | string>
+  | ((src?: string, cache?: boolean) => Promise<string>);
 
 export const runnableJobs: Record<Job, JobExec> = {
   [Job.build]: build,
