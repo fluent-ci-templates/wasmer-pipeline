@@ -122,14 +122,14 @@ export async function build(
 /**
  * @function
  * @description Deploy to Wasmer Edge
- * @param src {string | Directory | undefined}
+ * @param src {string | Directory}
  * @param token {string | Secret}
  * @param cache {boolean}
  * @returns {string}
  */
 export async function deploy(
+  token: string | Secret,
   src: string | Directory | undefined = ".",
-  token?: string | Secret,
   cache = false
 ): Promise<string> {
   await connect(async (client: Client) => {
@@ -174,11 +174,9 @@ export async function deploy(
   return "Done";
 }
 
-export type JobExec = (
-  src?: string
-) =>
-  | Promise<Directory | string>
-  | ((src?: string, cache?: boolean) => Promise<string>);
+export type JobExec =
+  | ((src?: string) => Promise<Directory | string>)
+  | ((token: string, src: string, cache?: boolean) => Promise<string>);
 
 export const runnableJobs: Record<Job, JobExec> = {
   [Job.build]: build,
