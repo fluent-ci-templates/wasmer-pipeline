@@ -16,7 +16,7 @@ export const exclude = ["target", ".git", ".fluentci"];
  * @returns {string}
  */
 export async function build(
-  src: string | Directory | undefined = "."
+  src: string | Directory
 ): Promise<Directory | string> {
   let id = "";
   await connect(async (client: Client) => {
@@ -128,8 +128,8 @@ export async function build(
  * @returns {string}
  */
 export async function deploy(
+  src: string | Directory,
   token: string | Secret,
-  src: string | Directory | undefined = ".",
   cache = false
 ): Promise<string> {
   await connect(async (client: Client) => {
@@ -175,8 +175,8 @@ export async function deploy(
 }
 
 export type JobExec =
-  | ((src?: string) => Promise<Directory | string>)
-  | ((token: string, src: string, cache?: boolean) => Promise<string>);
+  | ((src: string) => Promise<Directory | string>)
+  | ((src: string, token: string, cache?: boolean) => Promise<string>);
 
 export const runnableJobs: Record<Job, JobExec> = {
   [Job.build]: build,
