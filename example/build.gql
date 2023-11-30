@@ -1,5 +1,7 @@
 {
   wasmer {
-    build(src: ".")
+    build(src: ".") {
+      id
+    }
   }
 }
