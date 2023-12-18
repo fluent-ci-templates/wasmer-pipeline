@@ -35,9 +35,16 @@ dagger mod install github.com/fluent-ci-templates/wasmer-pipeline@mod
 | build   | Build your application.              |
 | deploy  | Deploy your application to wasm edge |
 
-```graphql
-  build(src: String!): String
-  deploy(cache: Boolean!, src: String!): String
+```typescript
+  build(
+    src: string | Directory
+  ): Promise<Directory | string>
+
+  deploy(
+    src: string | Directory,
+    token: string | Secret,
+    cache = false
+  ): Promise<string> 
 ```
 
 ## Programmatic usage
@@ -45,7 +52,7 @@ dagger mod install github.com/fluent-ci-templates/wasmer-pipeline@mod
 You can also use this pipeline programmatically:
 
 ```typescript
-import { build, deploy } from "https://pkg.fluentci.io/wasmer_pipeline@v0.2.0/mod.ts";
+import { build, deploy } from "https://pkg.fluentci.io/wasmer_pipeline@v0.3.0/mod.ts";
 
 await build(".")
 await deploy(".", Deno.env.get("WASMER_TOKEN"), true);

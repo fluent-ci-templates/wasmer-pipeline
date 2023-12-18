@@ -12,7 +12,7 @@ export const exclude = ["target", ".git", ".fluentci"];
 /**
  * @function
  * @description Build the project (wasix)
- * @param src {string | Directory | undefined}
+ * @param {string | Directory | undefined} src
  * @returns {string}
  */
 export async function build(
@@ -122,9 +122,9 @@ export async function build(
 /**
  * @function
  * @description Deploy to Wasmer Edge
- * @param src {string | Directory}
- * @param token {string | Secret}
- * @param cache {boolean}
+ * @param {string | Directory} src
+ * @param {string | Secret} token
+ * @param {boolean} cache
  * @returns {string}
  */
 export async function deploy(
