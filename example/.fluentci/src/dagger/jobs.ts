@@ -1,6 +1,5 @@
-import { connect } from "../../sdk/connect.ts";
 import { getDirectory, getWasmerToken } from "./lib.ts";
-import { Client, Directory, Secret } from "../../deps.ts";
+import { Directory, Secret, dag } from "../../deps.ts";
 
 export enum Job {
   build = "build",
@@ -12,119 +11,115 @@ export const exclude = ["target", ".git", ".fluentci"];
 /**
  * @function
  * @description Build the project (wasix)
- * @param src {string | Directory | undefined}
+ * @param {string | Directory | undefined} src
  * @returns {string}
  */
 export async function build(
   src: string | Directory
 ): Promise<Directory | string> {
-  let id = "";
-  await connect(async (client: Client) => {
-    const context = getDirectory(client, src);
-    const ctr = client
-      .pipeline(Job.build)
-      .container()
-      .from("rust:1.71-bookworm")
-      .withExec(["apt", "update"])
-      .withExec(["apt", "install", "-y", "build-essential", "wget"])
-      .withMountedCache(
-        "/root/.cargo/registry",
-        client.cacheVolume("cargo-registry")
-      )
-      .withMountedCache(
-        "/root/.cargo/git",
-        client.cacheVolume("cargo-git-cache")
-      )
-      .withMountedCache(
-        "/app/target",
-        client.cacheVolume("wasmer-target-cache")
-      )
-      .withExec(["cargo", "install", "cargo-wasix"])
-      .withExec([
-        "wget",
-        "https://github.com/wasix-org/rust/releases/download/v2023-07-21.1/rust-toolchain-x86_64-unknown-linux-gnu.tar.gz",
-      ])
-      .withExec([
-        "sh",
-        "-c",
-        "mkdir rust-toolchain-x86_64-unknown-linux-gnu && cd rust-toolchain-x86_64-unknown-linux-gnu && tar -xvf ../rust-toolchain-x86_64-unknown-linux-gnu.tar.gz",
-      ])
-      .withExec([
-        "wget",
-        "https://github.com/wasix-org/rust/releases/download/v2023-07-21.1/wasix-libc.tar.gz",
-      ])
-      .withExec([
-        "sh",
-        "-c",
-        "mkdir wasix-libc && cd wasix-libc && tar -xvf ../wasix-libc.tar.gz",
-      ])
-      .withExec([
-        "mkdir",
-        "-p",
-        "/root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-07-21.1",
-      ])
-      .withExec([
-        "mv",
-        "rust-toolchain-x86_64-unknown-linux-gnu",
-        "/root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-07-21.1/rust",
-      ])
-      .withExec([
-        "mv",
-        "wasix-libc",
-        "/root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-07-21.1/sysroot",
-      ])
-      .withExec([
-        "rustup",
-        "toolchain",
-        "link",
-        "wasix",
-        "/root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-07-21.1/rust",
-      ])
-      .withExec([
-        "sh",
-        "-c",
-        "chmod a+x /root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-07-21.1/rust/bin/* \
-      /root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-07-21.1/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/*",
-      ])
-      .withExec([
-        "cp",
-        "/usr/local/rustup/toolchains/1.71.1-x86_64-unknown-linux-gnu/bin/cargo",
-        "/usr/local/rustup/toolchains/wasix/bin",
-      ])
-      .withMountedCache(
-        "/usr/local/cargo/registry",
-        client.cacheVolume("cargo_registry")
-      )
-      .withMountedCache(
-        "/usr/local/cargo/git",
-        client.cacheVolume("cargo_git_cache")
-      )
-      .withDirectory("/app", context, {
-        exclude,
-      })
-      .withWorkdir("/app")
-      .withExec(["cargo", "wasix", "build", "--release"])
-      .withExec([
-        "cp",
-        "-r",
-        "/app/target/wasm32-wasmer-wasi/release/",
-        "/tmp/release/",
-      ])
-      .withExec(["ls", "-la", "/app/target/wasm32-wasmer-wasi/release/"]);
+  const CARGO_WASIX_VERSION = "v0.1.23";
+  const context = await getDirectory(dag, src);
+  const ctr = dag
+    .pipeline(Job.build)
+    .container()
+    .from("rust:1.75-bookworm")
+    .withExec(["apt", "update"])
+    .withExec(["apt", "install", "-y", "build-essential", "wget"])
+    .withMountedCache(
+      "/root/.cargo/registry",
+      dag.cacheVolume("cargo-registry")
+    )
+    .withMountedCache("/root/.cargo/git", dag.cacheVolume("cargo-git-cache"))
+    .withMountedCache("/app/target", dag.cacheVolume("wasmer-target-cache"))
+    .withExec([
+      "wget",
+      `https://github.com/wasix-org/cargo-wasix/releases/download/${CARGO_WASIX_VERSION}/cargo-wasix-x86_64-unknown-linux-gnu.tar.xz`,
+    ])
+    .withExec(["tar", "-xvf", "cargo-wasix-x86_64-unknown-linux-gnu.tar.xz"])
+    .withExec([
+      "mv",
+      "cargo-wasix-x86_64-unknown-linux-gnu/cargo-wasix",
+      "/usr/local/cargo/bin",
+    ])
+    .withExec([
+      "wget",
+      "https://github.com/wasix-org/rust/releases/download/v2023-11-01.1/rust-toolchain-x86_64-unknown-linux-gnu.tar.gz",
+    ])
+    .withExec([
+      "sh",
+      "-c",
+      "mkdir rust-toolchain-x86_64-unknown-linux-gnu && cd rust-toolchain-x86_64-unknown-linux-gnu && tar -xvf ../rust-toolchain-x86_64-unknown-linux-gnu.tar.gz",
+    ])
+    .withExec([
+      "wget",
+      "https://github.com/wasix-org/rust/releases/download/v2023-11-01.1/wasix-libc.tar.gz",
+    ])
+    .withExec([
+      "sh",
+      "-c",
+      "mkdir wasix-libc && cd wasix-libc && tar -xvf ../wasix-libc.tar.gz",
+    ])
+    .withExec([
+      "mkdir",
+      "-p",
+      "/root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-11-01.1",
+    ])
+    .withExec([
+      "mv",
+      "rust-toolchain-x86_64-unknown-linux-gnu",
+      "/root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-11-01.1/rust",
+    ])
+    .withExec([
+      "mv",
+      "wasix-libc",
+      "/root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-11-01.1/sysroot",
+    ])
+    .withExec([
+      "rustup",
+      "toolchain",
+      "link",
+      "wasix",
+      "/root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-11-01.1/rust",
+    ])
+    .withExec([
+      "sh",
+      "-c",
+      "chmod a+x /root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-11-01.1/rust/bin/* \
+      /root/.local/share/cargo-wasix/x86_64-unknown-linux-gnu_v2023-11-01.1/rust/lib/rustlib/x86_64-unknown-linux-gnu/bin/*",
+    ])
+    .withExec([
+      "cp",
+      "/usr/local/rustup/toolchains/1.75.0-x86_64-unknown-linux-gnu/bin/cargo",
+      "/usr/local/rustup/toolchains/wasix/bin",
+    ])
+    .withMountedCache(
+      "/usr/local/cargo/registry",
+      dag.cacheVolume("cargo_registry")
+    )
+    .withMountedCache(
+      "/usr/local/cargo/git",
+      dag.cacheVolume("cargo_git_cache")
+    )
+    .withDirectory("/app", context, {
+      exclude,
+    })
+    .withWorkdir("/app")
+    .withExec(["cargo", "wasix", "build", "--release"])
+    .withExec(["cp", "-r", "/app/target/wasm32-wasmer-wasi", "/tmp"])
+    .withExec(["ls", "-la", "/app/target/wasm32-wasmer-wasi/release/"]);
 
-    await ctr.stdout();
+  await ctr.stdout();
 
-    id = await ctr.directory("/tmp/release").id();
-  });
+  const id = await ctr.directory("/tmp/wasm32-wasmer-wasi").id();
   return id;
 }
 
 /**
  * @function
  * @description Deploy to Wasmer Edge
- * @param src {string | Directory}
- * @param token {string | Secret}
- * @param cache {boolean}
+ * @param {string | Directory} src
+ * @param {string | Secret} token
+ * @param {boolean} cache
  * @returns {string}
  */
 export async function deploy(
@@ -132,46 +127,42 @@ export async function deploy(
   token: string | Secret,
   cache = false
 ): Promise<string> {
-  await connect(async (client: Client) => {
-    const context = getDirectory(client, src);
-    const secret = getWasmerToken(client, token);
+  const context = await getDirectory(dag, src);
+  const secret = await getWasmerToken(dag, token);
 
-    if (!secret) {
-      console.log(
-        "Missing Wasmer token. Please provide a secret or set the WASMER_TOKEN environment variable."
-      );
-      Deno.exit(1);
-    }
+  if (!secret) {
+    console.log(
+      "Missing Wasmer token. Please provide a secret or set the WASMER_TOKEN environment variable."
+    );
+    Deno.exit(1);
+  }
 
-    let baseCtr = client
-      .pipeline(Job.deploy)
-      .container()
-      .from("ubuntu")
-      .withExec(["apt", "update"])
-      .withExec(["apt", "install", "-y", "curl"])
-      .withExec(["sh", "-c", "curl https://get.wasmer.io -sSfL | sh"])
-      .withSecretVariable("WASMER_TOKEN", secret)
-      .withEnvVariable("WASMER_DIR", "/root/.wasmer")
-      .withEnvVariable("WASMER_CACHE_DIR", "/root/.wasmer/cache")
-      .withEnvVariable("PATH", "/root/.wasmer/bin:$PATH", { expand: true });
+  let baseCtr = dag
+    .pipeline(Job.deploy)
+    .container()
+    .from("ubuntu")
+    .withExec(["apt", "update"])
+    .withExec(["apt", "install", "-y", "curl"])
+    .withExec(["sh", "-c", "curl https://get.wasmer.io -sSfL | sh"])
+    .withSecretVariable("WASMER_TOKEN", secret)
+    .withEnvVariable("WASMER_DIR", "/root/.wasmer")
+    .withEnvVariable("WASMER_CACHE_DIR", "/root/.wasmer/cache")
+    .withEnvVariable("PATH", "/root/.wasmer/bin:$PATH", { expand: true });
 
-    if (cache) {
-      baseCtr = baseCtr.withMountedCache(
-        "/app/target",
-        client.cacheVolume("wasmer-target-cache")
-      );
-    }
+  if (cache) {
+    baseCtr = baseCtr.withMountedCache(
+      "/app/target",
+      dag.cacheVolume("wasmer-target-cache")
+    );
+  }
 
-    const ctr = baseCtr
-      .withDirectory("/app", context, { exclude: cache ? ["target"] : [] })
-      .withWorkdir("/app")
-      .withExec(["wasmer", "deploy", "--non-interactive"]);
+  const ctr = baseCtr
+    .withDirectory("/app", context, { exclude: cache ? ["target"] : [] })
+    .withWorkdir("/app")
+    .withExec(["wasmer", "deploy", "--non-interactive"]);
 
-    const result = await ctr.stdout();
-
-    console.log(result);
-  });
-  return "Done";
+  const result = await ctr.stdout();
+  return result;
 }
 
 export type JobExec =
