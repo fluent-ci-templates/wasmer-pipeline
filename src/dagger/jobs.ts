@@ -1,6 +1,11 @@
 import { getDirectory, getWasmerToken } from "./lib.ts";
 import { Directory, Secret, dag } from "../../deps.ts";
 
+/**
+ * @module wasmer
+ * @description A module for building and deploying applications to Wasmer Edge.
+ */
+
 export enum Job {
   build = "build",
   deploy = "deploy",
