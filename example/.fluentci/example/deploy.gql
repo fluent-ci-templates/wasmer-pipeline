@@ -1,5 +1,0 @@
-{
-  wasmer {
-    deploy(src: ".", token: "WASMER_TOKEN", cache: true)
-  }
-}
