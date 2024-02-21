@@ -1,5 +1,0 @@
-{
-  "root": "",
-  "name": "wasmer",
-  "sdkRuntime": "tsiry/dagger-sdk-deno"
-}
