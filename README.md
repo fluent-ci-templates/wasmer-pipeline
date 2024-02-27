@@ -19,7 +19,7 @@ fluentci run wasmer_pipeline
 Use as a [Dagger](https://dagger.io) Module:
 
 ```bash
-dagger mod install github.com/fluent-ci-templates/wasmer-pipeline@mod
+dagger install github.com/fluent-ci-templates/wasmer-pipeline@main
 ```
 
 ## Environment Variables
