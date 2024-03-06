@@ -1,5 +1,10 @@
+/**
+ * @module wasmer
+ * @description A module for building and deploying applications to Wasmer Edge.
+ */
+
 import { getDirectory, getWasmerToken } from "./lib.ts";
-import { Directory, Secret, dag } from "../../deps.ts";
+import { exit, Directory, Secret, dag } from "../../deps.ts";
 
 export enum Job {
   build = "build",
@@ -9,6 +14,8 @@ export enum Job {
 export const exclude = ["target", ".git", ".fluentci"];
 
 /**
+ * Build the project (wasix)
+ *
  * @function
  * @description Build the project (wasix)
  * @param {string | Directory | undefined} src
@@ -18,7 +25,7 @@ export async function build(
   src: string | Directory
 ): Promise<Directory | string> {
   const CARGO_WASIX_VERSION = "v0.1.23";
-  const context = await getDirectory(dag, src);
+  const context = await getDirectory(src);
   const ctr = dag
     .pipeline(Job.build)
     .container()
@@ -115,6 +122,8 @@ export async function build(
 }
 
 /**
+ *  Deploy to Wasmer Edge
+ *
  * @function
  * @description Deploy to Wasmer Edge
  * @param {string | Directory} src
@@ -127,14 +136,15 @@ export async function deploy(
   token: string | Secret,
   cache = false
 ): Promise<string> {
-  const context = await getDirectory(dag, src);
-  const secret = await getWasmerToken(dag, token);
+  const context = await getDirectory(src);
+  const secret = await getWasmerToken(token);
 
   if (!secret) {
     console.log(
       "Missing Wasmer token. Please provide a secret or set the WASMER_TOKEN environment variable."
     );
-    Deno.exit(1);
+    exit(1);
+    return "";
   }
 
   let baseCtr = dag

@@ -1,18 +1,15 @@
-import { uploadContext } from "../../deps.ts";
 import * as jobs from "./jobs.ts";
+import { env } from "../../deps.ts";
 
-const { build, deploy, runnableJobs, exclude } = jobs;
+const { build, deploy, runnableJobs } = jobs;
 
 export default async function pipeline(src = ".", args: string[] = []) {
-  if (Deno.env.has("FLUENTCI_SESSION_ID")) {
-    await uploadContext(src, exclude);
-  }
   if (args.length > 0) {
     await runSpecificJobs(src, args as jobs.Job[]);
     return;
   }
   await build(src);
-  await deploy(src, Deno.env.get("WASMER_TOKEN") || "", true);
+  await deploy(src, env.get("WASMER_TOKEN") || "", true);
 }
 
 async function runSpecificJobs(src: string, args: jobs.Job[]) {
@@ -21,6 +18,6 @@ async function runSpecificJobs(src: string, args: jobs.Job[]) {
     if (!job) {
       throw new Error(`Job ${name} not found`);
     }
-    await job(src, Deno.env.get("WASMER_TOKEN") || "", true);
+    await job(src, env.get("WASMER_TOKEN") || "", true);
   }
 }
