@@ -4,6 +4,7 @@
 ![deno compatibility](https://shield.deno.dev/deno/^1.41)
 [![dagger-min-version](https://img.shields.io/badge/dagger-v0.10.0-blue?color=3D66FF&labelColor=000000)](https://dagger.io)
 [![](https://jsr.io/badges/@fluentci/wasmer)](https://jsr.io/@fluentci/wasmer)
+[![ci](https://github.com/fluent-ci-templates/wasmer-pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/fluent-ci-templates/wasmer-pipeline/actions/workflows/ci.yml)
 
 A ready-to-use CI/CD Pipeline for deploying your applications to [Wasmer Edge](https://wasmer.io/products/edge).
 
