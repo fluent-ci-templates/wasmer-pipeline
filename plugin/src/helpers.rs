@@ -1,23 +1,6 @@
 use anyhow::Error;
 use fluentci_pdk::dag;
 
-pub fn setup_rust() -> Result<(), Error> {
-    let path = dag().get_env("PATH")?;
-    let home = dag().get_env("HOME")?;
-    let path = format!("{}:{}/.cargo/bin", path, home);
-    dag().set_envs(vec![("PATH".into(), path)])?;
-
-    dag()
-        .pkgx()?
-        .with_packages(vec!["curl"])?
-        .with_exec(vec![
-      "type rustup > /dev/null || curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh",
-  ])?
-        .stdout()?;
-
-    Ok(())
-}
-
 pub fn get_os_arch() -> Result<String, Error> {
     let os = dag().get_os()?;
     let arch = dag().get_arch()?;
@@ -37,7 +20,11 @@ pub fn get_os_arch() -> Result<String, Error> {
 }
 
 pub fn setup_wasix() -> Result<(), Error> {
-    setup_rust()?;
+    dag().call(
+        "https://pkg.fluentci.io/rust_pipeline@v0.10.2?wasm=1",
+        "setup",
+        vec![],
+    )?;
 
     let wasix_ok = dag()
         .directory(".")?
