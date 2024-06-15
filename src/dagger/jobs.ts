@@ -169,7 +169,7 @@ export async function deploy(
   const ctr = baseCtr
     .withDirectory("/app", context, { exclude: cache ? ["target"] : [] })
     .withWorkdir("/app")
-    .withExec(["wasmer", "deploy", "--non-interactive"]);
+    .withExec(["wasmer", "deploy", "--non-interactive", "--bump"]);
 
   const result = await ctr.stdout();
   return result;

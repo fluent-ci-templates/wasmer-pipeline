@@ -1,5 +1,6 @@
 ---
 kind: wasmer.io/App.v0
 name: tsirysndr-hello
-package: demo-ns/wasmer-hello
+package: .
 app_id: da_vRxJIdtAUvQK
+owner: tsirysndr
