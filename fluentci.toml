@@ -5,4 +5,4 @@ authors = [
 description = "CI/CD Plugin for Wasmer"
 license = "MIT"
 name = "wasmer"
-version = "0.8.0"
+version = "0.5.1"
