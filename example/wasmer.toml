@@ -1,7 +1,7 @@
 [package]
 description = "Sample Axum server for Wasmer Edge"
 license = "MIT"
-name = "tsirysndr/wasmer-hello"
+name = "tsirysndr-hello"
 version = "0.1.4"
 wasmer-extra-flags = "--net --enable-threads --enable-bulk-memory"
 
