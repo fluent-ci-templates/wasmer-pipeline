@@ -2,9 +2,9 @@ import {
   dag,
   env,
   Directory,
-  DirectoryID,
+  type DirectoryID,
   Secret,
-  SecretID,
+  type SecretID,
 } from "../../deps.ts";
 
 export const getDirectory = async (
