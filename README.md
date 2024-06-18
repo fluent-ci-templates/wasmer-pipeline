@@ -1,7 +1,6 @@
 # Wasmer Pipeline
 
 [![fluentci pipeline](https://shield.fluentci.io/x/wasmer_pipeline)](https://pkg.fluentci.io/wasmer_pipeline)
-[![deno module](https://shield.deno.dev/x/wasmer_pipeline)](https://deno.land/x/wasmer_pipeline)
 ![deno compatibility](https://shield.deno.dev/deno/^1.41)
 [![dagger-min-version](https://shield.fluentci.io/dagger/v0.11.7)](https://dagger.io)
 [![](https://jsr.io/badges/@fluentci/wasmer)](https://jsr.io/@fluentci/wasmer)
